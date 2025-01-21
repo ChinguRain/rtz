@@ -102,3 +102,192 @@
     background-color: #f9f9f9;
   }
 </style>
+
+------------------------------------------------------
+// CommonTextInput.vue.test.js
+import { shallowMount } from '@vue/test-utils';
+import YourComponent from './YourComponent.vue'; // Adjust the path as necessary
+
+describe('YourComponent.vue', () => {
+  it('should initialize with default data', () => {
+    const wrapper = shallowMount(YourComponent);
+    expect(wrapper.vm.valid).toBe(false);
+    expect(wrapper.vm.loginSuccess).toBe(false);
+    expect(wrapper.vm.loginFailed).toBe(false);
+    expect(wrapper.vm.snackbar).toBe(false);
+    expect(wrapper.vm.snackbarMessage).toBe('');
+    expect(wrapper.vm.snackbarColor).toBe('');
+    expect(wrapper.vm.credentials).toEqual({
+      username: '',
+      password: '',
+    });
+  });
+
+  it('should update field value correctly', () => {
+    const wrapper = shallowMount(YourComponent);
+    const fieldName = 'username';
+    const data = { value: 'newUser ' };
+
+    wrapper.vm.updateFieldValue(fieldName, data);
+    expect(wrapper.vm.credentials.username).toBe('newUser ');
+  });
+
+  it('should login successfully with correct credentials', () => {
+    const wrapper = shallowMount(YourComponent);
+    wrapper.vm.credentials.username = 'testUser ';
+    wrapper.vm.credentials.password = 'testPassword';
+    
+    // Mock the form validation
+    wrapper.vm.$refs = {
+      form: {
+        validate: jest.fn().mockReturnValue(true),
+      },
+    };
+
+    wrapper.vm.login();
+
+    expect(wrapper.vm.loginSuccess).toBe(true);
+    expect(wrapper.vm.loginFailed).toBe(false);
+    expect(wrapper.vm.snackbarMessage).toBe('Login successful! Welcome, testUser .');
+    expect(wrapper.vm.snackbarColor).toBe('success');
+    expect(wrapper.vm.snackbar).toBe(true);
+  });
+
+  it('should fail login with incorrect credentials', () => {
+    const wrapper = shallowMount(YourComponent);
+    wrapper.vm.credentials.username = 'wrongUser ';
+    wrapper.vm.credentials.password = 'wrongPassword';
+    
+    // Mock the form validation
+    wrapper.vm.$refs = {
+      form: {
+        validate: jest.fn().mockReturnValue(true),
+      },
+    };
+
+    wrapper.vm.login();
+
+    expect(wrapper.vm.loginSuccess).toBe(false);
+    expect(wrapper.vm.loginFailed).toBe(true);
+    expect(wrapper.vm.snackbarMessage).toBe('Invalid username or password. Please try again.');
+    expect(wrapper.vm.snackbarColor).toBe('error');
+    expect(wrapper.vm.snackbar).toBe(true);
+  });
+
+  it('should not login if form validation fails', () => {
+    const wrapper = shallowMount(YourComponent);
+    
+    // Mock the form validation to return false
+    wrapper.vm.$refs = {
+      form: {
+        validate: jest.fn().mockReturnValue(false),
+      },
+    };
+
+    wrapper.vm.login();
+
+    expect(wrapper.vm.loginSuccess).toBe(false);
+    expect(wrapper.vm.loginFailed).toBe(false);
+    expect(wrapper.vm.snackbar).toBe(false);
+  });
+});
+-----------------------------------------------------
+// CommonTextInput.vue.test.js
+import { shallowMount } from '@vue/test-utils';
+import YourComponent from './YourComponent.vue'; // Adjust the path as necessary
+
+describe('YourComponent.vue', () => {
+  it('should initialize with default data', () => {
+    const wrapper = shallowMount(YourComponent);
+    expect(wrapper.vm.valid).toBe(false);
+    expect(wrapper.vm.loginSuccess).toBe(false);
+    expect(wrapper.vm.loginFailed).toBe(false);
+    expect(wrapper.vm.snackbar).toBe(false);
+    expect(wrapper.vm.snackbarMessage).toBe('');
+    expect(wrapper.vm.snackbarColor).toBe('');
+    expect(wrapper.vm.credentials).toEqual({
+      username: '',
+      password: '',
+    });
+  });
+
+  it('should update field value correctly', () => {
+    const wrapper = shallowMount(YourComponent);
+    const fieldName = 'username';
+    const data = { value: 'newUser ' };
+
+    wrapper.vm.updateFieldValue(fieldName, data);
+    expect(wrapper.vm.credentials.username).toBe('newUser ');
+  });
+
+  it('should compute username correctly', () => {
+    const wrapper = shallowMount(YourComponent);
+    wrapper.vm.credentials.username = 'testUser ';
+    expect(wrapper.vm.username).toBe('testUser ');
+  });
+
+  it('should compute password correctly', () => {
+    const wrapper = shallowMount(YourComponent);
+    wrapper.vm.credentials.password = 'testPassword';
+    expect(wrapper.vm.password).toBe('testPassword');
+  });
+
+  it('should login successfully with correct credentials', () => {
+    const wrapper = shallowMount(YourComponent);
+    wrapper.vm.credentials.username = 'testUser ';
+    wrapper.vm.credentials.password = 'testPassword';
+    
+    // Mock the form validation
+    wrapper.vm.$refs = {
+      form: {
+        validate: jest.fn().mockReturnValue(true),
+      },
+    };
+
+    wrapper.vm.login();
+
+    expect(wrapper.vm.loginSuccess).toBe(true);
+    expect(wrapper.vm.loginFailed).toBe(false);
+    expect(wrapper.vm.snackbarMessage).toBe('Login successful! Welcome, testUser .');
+    expect(wrapper.vm.snackbarColor).toBe('success');
+    expect(wrapper.vm.snackbar).toBe(true);
+  });
+
+  it('should fail login with incorrect credentials', () => {
+    const wrapper = shallowMount(YourComponent);
+    wrapper.vm.credentials.username = 'wrongUser ';
+    wrapper.vm.credentials.password = 'wrongPassword';
+    
+    // Mock the form validation
+    wrapper.vm.$refs = {
+      form: {
+        validate: jest.fn().mockReturnValue(true),
+      },
+    };
+
+    wrapper.vm.login();
+
+    expect(wrapper.vm.loginSuccess).toBe(false);
+    expect(wrapper.vm.loginFailed).toBe(true);
+    expect(wrapper.vm.snackbarMessage).toBe('Invalid username or password. Please try again.');
+    expect(wrapper.vm.snackbarColor).toBe('error');
+    expect(wrapper.vm.snackbar).toBe(true);
+  });
+
+  it('should not login if form validation fails', () => {
+    const wrapper = shallowMount(YourComponent);
+    
+    // Mock the form validation to return false
+    wrapper.vm.$refs = {
+      form: {
+        validate: jest.fn().mockReturnValue(false),
+      },
+    };
+
+    wrapper.vm.login();
+
+    expect(wrapper.vm.loginSuccess).toBe(false);
+    expect(wrapper.vm.loginFailed).toBe(false);
+    expect(wrapper.vm.snackbar).toBe(false);
+  });
+});
