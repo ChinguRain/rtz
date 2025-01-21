@@ -1,38 +1,43 @@
 <template>
   <v-container>
     <v-form ref="form" v-model="valid" lazy-validation>
-      <v-text-field
-        v-model="credentials.username"
-        label="Username"
-        prepend-icon="bi bi-person"
-        required
-      ></v-text-field>
-
-      <v-text-field
-        v-model="credentials.password"
-        :type="passwordVisible ? 'text' : 'password'"
-        label="Password"
-        prepend-icon="bi bi-lock"
-        append-icon="passwordVisible ? 'bi bi-eye-slash' : 'bi bi-eye'"
-        @click:append="togglePasswordVisibility"
-        required
-      ></v-text-field>
+      <div v-for="(field, index) in loginData" :key="index">
+        <common-text-input
+          :item="field"
+          @addValue="updateFieldValue(field.data.saveAs, $event)"
+        ></common-text-input>
+      </div>
 
       <v-btn :disabled="!valid" color="primary" @click="login"> Login </v-btn>
     </v-form>
 
+    <!-- Success Alert -->
     <v-alert v-if="loginSuccess" type="success" dismissible>
       Login successful! Welcome, {{ credentials.username }}.
     </v-alert>
 
+    <!-- Failure Alert -->
     <v-alert v-if="loginFailed" type="error" dismissible>
       Invalid username or password. Please try again.
     </v-alert>
+
+    <!-- Display Entered Credentials -->
+    <div v-if="loginSuccess" class="entered-credentials">
+      <h3>Entered Credentials:</h3>
+      <p><strong>Username:</strong> {{ credentials.username }}</p>
+      <p><strong>Password:</strong> {{ credentials.password }}</p>
+    </div>
   </v-container>
 </template>
 
 <script>
+  import CommonTextInput from './CommonTextInput.vue' // Adjust the path as necessary
+  import { LOGIN_DATA } from './loginFields.js' // Adjust the path as necessary
+
   export default {
+    components: {
+      CommonTextInput,
+    },
     data() {
       return {
         valid: false,
@@ -42,7 +47,7 @@
           username: '',
           password: '',
         },
-        passwordVisible: false, // State for password visibility
+        loginData: LOGIN_DATA,
         mockCredentials: {
           username: 'testUser',
           password: 'testPassword',
@@ -50,20 +55,26 @@
       }
     },
     methods: {
-      togglePasswordVisibility() {
-        this.passwordVisible = !this.passwordVisible // Toggle visibility
+      updateFieldValue(fieldName, data) {
+        this.credentials[fieldName] = data.value // Update the credentials object
       },
       login() {
         if (this.$refs.form.validate()) {
+          // Check against mock credentials
           if (
             this.credentials.username === this.mockCredentials.username &&
             this.credentials.password === this.mockCredentials.password
           ) {
-            this.loginSuccess = true
-            this.loginFailed = false
+            this.loginSuccess = true // Show success alert
+            this.loginFailed = false // Hide failure alert
+            console.log(
+              'Logging in with:',
+              this.credentials.username,
+              this.credentials.password
+            )
           } else {
-            this.loginFailed = true
-            this.loginSuccess = false
+            this.loginFailed = true // Show failure alert
+            this.loginSuccess = false // Hide success alert
           }
         }
       },
@@ -72,5 +83,11 @@
 </script>
 
 <style scoped>
-  /* Add any additional styling here */
+  .entered-credentials {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
 </style>
