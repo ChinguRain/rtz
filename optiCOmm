@@ -1,0 +1,53 @@
+<template>
+  <v-text-field
+    :label="label"
+    :placeholder="placeholder"
+    v-model="textInputData"
+    :rules="rules"
+    :id="label"
+    :readonly="readOnly"
+    :type="inputType"
+    @change="emitValue"
+    v-bind="item.directives"
+  ></v-text-field>
+</template>
+
+<script>
+  export default {
+    name: 'CommonTextInput',
+    props: {
+      item: {
+        type: Object,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        textInputData: '',
+        rules: [v => !!v || 'This field is required'],
+      }
+    },
+    computed: {
+      label() {
+        return this.item.display.label
+      },
+      placeholder() {
+        return this.item.display.placeholder
+      },
+      readOnly() {
+        return this.item.directives.readOnly
+      },
+      inputType() {
+        return this.item.directives.type
+      },
+    },
+    methods: {
+      emitValue() {
+        this.$emit('addValue', {
+          key: this.item.data.saveAs || '', // Handle case where saveAs might not be defined
+          value: this.textInputData.trim(),
+        })
+      },
+    },
+  }
+</script>
