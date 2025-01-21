@@ -1,0 +1,89 @@
+<template>
+  <v-container>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <div v-for="field in loginData" :key="field.data.saveAs">
+        <common-text-input
+          :item="field"
+          @addValue="updateFieldValue(field.data.saveAs, $event)"
+        ></common-text-input>
+      </div>
+
+      <v-btn :disabled="!valid" color="primary" @click="login">Login</v-btn>
+    </v-form>
+
+    <!-- Alert for Login Result -->
+    <v-alert v-if="loginSuccess || loginFailed" :type="loginSuccess ? 'success' : 'error'" dismissible>
+      {{ loginSuccess ? `Login successful! Welcome, ${username}.` : 'Invalid username or password. Please try again.' }}
+    </v-alert>
+
+    <!-- Display Entered Credentials -->
+    <div v-if="loginSuccess" class="entered-credentials">
+      <h3>Entered Credentials:</h3>
+      <p><strong>Username:</strong> {{ username }}</p>
+      <p><strong>Password:</strong> {{ password }}</p>
+    </div>
+  </v-container>
+</template>
+
+<script>
+import CommonTextInput from './CommonTextInput.vue'; // Adjust the path as necessary
+import { LOGIN_DATA } from './loginFields.js'; // Adjust the path as necessary
+
+export default {
+  components: {
+    CommonTextInput,
+  },
+  data() {
+    return {
+      valid: false,
+      loginSuccess: false,
+      loginFailed: false,
+      credentials: {
+        username: '',
+        password: '',
+      },
+      loginData: LOGIN_DATA,
+      mockCredentials: {
+        username: 'testUser ',
+        password: 'testPassword',
+      },
+    };
+  },
+  computed: {
+    username() {
+      return this.credentials.username;
+    },
+    password() {
+      return this.credentials.password;
+    },
+  },
+  methods: {
+    updateFieldValue(fieldName, data) {
+      this.credentials[fieldName] = data.value; // Update the credentials object
+    },
+    login() {
+      if (this.$refs.form.validate()) {
+        const isValidLogin = this.credentials.username === this.mockCredentials.username &&
+                             this.credentials.password === this.mockCredentials.password;
+
+        this.loginSuccess = isValidLogin; // Show success alert
+        this.loginFailed = !isValidLogin; // Show failure alert
+
+        if (isValidLogin) {
+          console.log('Logging in with:', this.username, this.password);
+        }
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.entered-credentials {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+</style>
