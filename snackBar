@@ -291,3 +291,19 @@ describe('YourComponent.vue', () => {
     expect(wrapper.vm.snackbar).toBe(false);
   });
 });
+---------------------------------------------
+computed: {
+  credentialsData() {
+    return {
+      username: this.credentials.username,
+      password: this.credentials.password,
+    };
+  },
+}
+
+ if (this.$refs.form.validate()) {
+      const { username, password } = this.credentialsData; // Destructuring for easier access
+
+      const isValidLogin =
+        username === this.mockCredentials.username &&
+        password === this.mockCredentials.password;
