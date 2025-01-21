@@ -1,82 +1,64 @@
 <template>
-  <v-container>
-    <v-form ref="form" v-model="valid" lazy-validation>
-      <div v-for="(field, index) in loginData" :key="index">
-        <common-text-input
-          :item="field"
-          @addValue="updateFieldValue(field.data.saveAs, $event)"
-        ></common-text-input>
-      </div>
-
-      <v-btn :disabled="!valid" color="primary" @click="login"> Login </v-btn>
-    </v-form>
-
-    <v-card v-if="isLoggedIn">
-      <v-card-title>Logged In</v-card-title>
-      <v-card-text>
-        <p><strong>Username:</strong> {{ credentials.username }}</p>
-        <p><strong>Password:</strong> {{ credentials.password }}</p>
-      </v-card-text>
-    </v-card>
-
-    <v-alert v-if="loginFailed" type="error" dismissible>
-      Invalid username or password. Please try again.
-    </v-alert>
-  </v-container>
+  <v-text-field
+    :label="item.display.label"
+    :placeholder="item.display.placeholder"
+    v-model="textInputData"
+    :rules="rules"
+    :id="item.display.label"
+    :readonly="item.directives.readOnly"
+    :type="item.directives.type"
+    @keypress="checkIfKeyIsValid($event, item.directives.type, item.data.saveAs)"
+    @change="emitValue"
+    v-bind="item.directives"
+  ></v-text-field>
 </template>
 
 <script>
-  import CommonTextInput from './CommonTextInput.vue' // Adjust the path as necessary
-  import { LOGIN_DATA } from './loginFields.js' // Adjust the path as necessary
+export default {
+  name: 'CommonTextInput',
+  props: {
+    item: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      textInputData: '',
+      rules: [
+        v => !!v || 'This field is required',
+      ]
+    }
+  },
+  methods: {
+    checkIfKeyIsValid(event, type, saveAs) {
+      const regxText = /^[a-zA-Z]+$/;
+      const regexNum = /^[0-9]+$/;
+      const regexDecimal = /^[0-9.]+$/;
 
-  export default {
-    components: {
-      CommonTextInput,
-    },
-    data() {
-      return {
-        valid: false,
-        isLoggedIn: false,
-        loginFailed: false,
-        credentials: {
-          username: '',
-          password: '',
-        },
-        loginData: LOGIN_DATA,
-        mockCredentials: {
-          username: 'testUser ',
-          password: 'testPassword',
-        },
+      if (type === 'text' && event.key !== ' ' && !this.testInput(regxText, event.key)) {
+        event.preventDefault();
+      } else if (type === 'tel' && !this.testInput(regexNum, event.key)) {
+        event.preventDefault();
+      } else if (type === 'number' && saveAs === 'age' && !this.testInput(regexNum, event.key)) {
+        event.preventDefault();
+      } else if (type === 'number' && !this.testInput(regexDecimal, event.key)) {
+        event.preventDefault();
       }
     },
-    methods: {
-      updateFieldValue(fieldName, data) {
-        this.credentials[fieldName] = data.value // Update the credentials object
-      },
-      login() {
-        if (this.$refs.form.validate()) {
-          // Check against mock credentials
-          if (
-            this.credentials.username === this.mockCredentials.username &&
-            this.credentials.password === this.mockCredentials.password
-          ) {
-            this.isLoggedIn = true
-            this.loginFailed = false
-            console.log(
-              'Logging in with:',
-              this.credentials.username,
-              this.credentials.password
-            )
-          } else {
-            this.loginFailed = true // Show error message
-            this.isLoggedIn = false // Reset login state
-          }
-        }
-      },
+    testInput(regex, input) {
+      return regex.test(input);
     },
+    emitValue() {
+      this.$emit('addValue', {
+        key: this.item.data.saveAs,
+        value: this.textInputData.trim()
+      });
+    }
   }
+}
 </script>
 
 <style scoped>
-  /* Add any specific styles if needed */
+/* Add any specific styles if needed */
 </style>
