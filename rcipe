@@ -1,0 +1,32 @@
+const LOGIN_DATA = [
+  {
+    COMPONENT_NAME: 'CommonTextInput',
+    display: {
+      label: 'Username',
+      placeholder: 'Enter your username',
+    },
+    directives: {
+      type: 'text',
+      readOnly: false,
+    },
+    data: {
+      saveAs: 'username',
+    },
+  },
+  {
+    COMPONENT_NAME: 'CommonTextInput',
+    display: {
+      label: 'Password',
+      placeholder: 'Enter your password',
+    },
+    directives: {
+      type: 'password',
+      readOnly: false,
+    },
+    data: {
+      saveAs: 'password',
+    },
+  },
+]
+
+export { LOGIN_DATA }
