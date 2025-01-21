@@ -1,0 +1,76 @@
+<template>
+  <v-container>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <v-text-field
+        v-model="credentials.username"
+        label="Username"
+        prepend-icon="bi bi-person"
+        required
+      ></v-text-field>
+
+      <v-text-field
+        v-model="credentials.password"
+        :type="passwordVisible ? 'text' : 'password'"
+        label="Password"
+        prepend-icon="bi bi-lock"
+        append-icon="passwordVisible ? 'bi bi-eye-slash' : 'bi bi-eye'"
+        @click:append="togglePasswordVisibility"
+        required
+      ></v-text-field>
+
+      <v-btn :disabled="!valid" color="primary" @click="login"> Login </v-btn>
+    </v-form>
+
+    <v-alert v-if="loginSuccess" type="success" dismissible>
+      Login successful! Welcome, {{ credentials.username }}.
+    </v-alert>
+
+    <v-alert v-if="loginFailed" type="error" dismissible>
+      Invalid username or password. Please try again.
+    </v-alert>
+  </v-container>
+</template>
+
+<script>
+  export default {
+    data() {
+      return {
+        valid: false,
+        loginSuccess: false,
+        loginFailed: false,
+        credentials: {
+          username: '',
+          password: '',
+        },
+        passwordVisible: false, // State for password visibility
+        mockCredentials: {
+          username: 'testUser',
+          password: 'testPassword',
+        },
+      }
+    },
+    methods: {
+      togglePasswordVisibility() {
+        this.passwordVisible = !this.passwordVisible // Toggle visibility
+      },
+      login() {
+        if (this.$refs.form.validate()) {
+          if (
+            this.credentials.username === this.mockCredentials.username &&
+            this.credentials.password === this.mockCredentials.password
+          ) {
+            this.loginSuccess = true
+            this.loginFailed = false
+          } else {
+            this.loginFailed = true
+            this.loginSuccess = false
+          }
+        }
+      },
+    },
+  }
+</script>
+
+<style scoped>
+  /* Add any additional styling here */
+</style>
