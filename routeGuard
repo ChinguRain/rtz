@@ -1,0 +1,133 @@
+#1
+// auth.js
+export const auth = {
+  isAuthenticated: false,
+};
+
+--------------------------
+#2
+<template>
+  <v-container>
+    <v-form ref="form" v-model="valid" lazy-validation>
+      <div v-for="field in loginData" :key="field.data.saveAs">
+        <common-text-input
+          :item="field"
+          @addValue="updateFieldValue(field.data.saveAs, $event)"
+        ></common-text-input>
+      </div>
+
+      <v-btn :disabled="!valid" color="primary" @click="login">Login</v-btn>
+    </v-form>
+
+    <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="3000">
+      {{ snackbarMessage }}
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" @click="snackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
+
+    <div v-if="loginSuccess" class="entered-credentials">
+      <h3>Entered Credentials:</h3>
+      <p><strong>Username:</strong> {{ username }}</p>
+      <p><strong>Password:</strong> {{ password }}</p>
+    </div>
+  </v-container>
+</template>
+
+<script>
+import CommonTextInput from './CommonTextInput.vue'; // Adjust the path as necessary
+import { LOGIN_DATA } from './loginFields.js'; // Adjust the path as necessary
+import { auth } from './auth'; // Import the global auth state
+
+export default {
+  components: {
+    CommonTextInput,
+  },
+  data() {
+    return {
+      valid: false,
+      loginSuccess: false,
+      snackbar: false,
+      snackbarMessage: '',
+      snackbarColor: '',
+      credentials: {
+        username: '',
+        password: '',
+      },
+      loginData: LOGIN_DATA,
+      mockCredentials: {
+        username: 'testUser ',
+        password: 'testPassword',
+      },
+    };
+  },
+  computed: {
+    username() {
+      return this.credentials.username;
+    },
+    password() {
+      return this.credentials.password;
+    },
+  },
+  methods: {
+    updateFieldValue(fieldName, data) {
+      this.credentials[fieldName] = data.value; // Update the credentials object
+    },
+    login() {
+      if (this.$refs.form.validate()) {
+        const isValidLogin =
+          this.credentials.username === this.mockCredentials.username &&
+          this.credentials.password === this.mockCredentials.password;
+
+        if (isValidLogin) {
+          auth.isAuthenticated = true; // Set the global authentication state
+          this.$router.push('/home'); // Redirect to the home page or another component
+        } else {
+          this.snackbarMessage = 'Invalid username or password. Please try again.';
+          this.snackbarColor = 'error';
+        }
+
+        this.snackbar = true; // Show snackbar
+      }
+    },
+  },
+};
+</script>
+
+---------------------------------------------
+#3
+//router.js
+import Vue from 'vue';
+import Router from 'vue-router';
+import { auth } from './auth'; // Import the global auth state
+import Login from './components/Login.vue';
+import Home from './components/Home.vue'; // Example protected route
+
+Vue.use(Router);
+
+const router = new Router({
+  routes: [
+    {
+      path: '/login',
+      component: Login,
+    },
+    {
+      path: '/home',
+      component: Home,
+      meta: { requiresAuth: true }, // This route requires authentication
+    },
+    // other routes...
+  ],
+});
+
+// Navigation guard
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth) && !auth.isAuthenticated) {
+    // If the route requires auth and the user is not authenticated
+    next({ path: '/login' }); // Redirect to login
+  } else {
+    next(); // Proceed to the route
+  }
+});
+
+export default router;
